@@ -1,22 +1,25 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:14' 
-            args '-p 3000:3000' 
+     agent any
+     tools {
+         nodejs 'node14'
         }
-    }
-    environment { 
-        CI = 'true'
-    }
-    stages {
-        stage('Build') { 
+     stages {
+         stage('NodeSetup') {
             steps {
-                sh 'npm install' 
+                sh 'npm config ls'
             }
         }
-        stage('Test') {
+        stage("Build") {
             steps {
-                sh 'npm start'
+                sh 'npm install'
+                sh 'npm run build'
+            }
+        }
+        stage("Deploy") {
+            steps {
+                sh 'rm -rf /var/jenkins_home/workspace/jenkins_react/build/'
+                sh 'cp -r ${WORKSPACE}/build/ /var/jenkins_home/workspace/jenkins_react/'
             }
         }
     }
+}
